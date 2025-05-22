@@ -1,35 +1,40 @@
 const express = require('express');
-const { adminAuth } = require('./adminAuth');
+const { adminAuth } = require('./middleware/adminAuth');
+const connectDb = require("./config/database")
+const User = require("./models/user.js")
 const app = express();
- 
-app.use("/admin", adminAuth);
 
-app.use(
-    "/user",
-    (req, res,next)=>{
-    // res.send({
-    //     "first name":"vaibhav",
-    //     "last name":"pandey"
-    // })
-    next();
-},
-(req, res)=>{
-    console.log("hi 2");
+app.use(express.json());
+app.post("/singup", async(req, res)=>{
+    const data  = req.body;
+    console.log(data);
     
-        res.send("hii 2")
+    const user = new User({
+        firstName : data.firstName,
+        lastName : data.lastName,
+        emailId : data.emailId,
+        password : data.password
+    })
+    try {
+        await user.save()
+        res.status(200).send("user created successfully")
+        
+    } catch (error) {
+        res.status(400).send("user not created successfully")
+        
+    }
+})
+
+
+connectDb().then(
+    () => {
+        console.log("database connection stable");
+        app.listen(3000);
+        console.log('Server is running on port 3000');
+
+    })
+    .catch(() => {
+        console.log("database connection disable");
 
     })
 
-// app.post("/user",(req, res)=>{
-//     console.log("saving data to bakend");
-//     res.send("use backend")
-    
-// })
-// app.use("/",(req, res)=>{
-//     res.send('Hello World');
-// })
-app.use("/test",(req, res)=>{
-    res.send('Hello World from test!');
-})
-app.listen(3000);
-console.log('Server is running on port 3000');
