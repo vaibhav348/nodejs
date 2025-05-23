@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const validator = require("validator")
 
 const userSchema = mongoose.Schema({
        firstName: {
@@ -13,7 +14,12 @@ const userSchema = mongoose.Schema({
             required : true,
             unique : true,
             lowercase : true,
-            trim : true 
+            trim : true ,
+            validate(value){
+                if(!validator.isEmail(value)){
+                    throw new Error("Invalid Email address"+ value);
+                }
+            }
         },
         password: {
             type: String,
@@ -35,7 +41,12 @@ const userSchema = mongoose.Schema({
 
         photoUrl:{
             type : String,
-            default:"https://icons.veryicon.com/png/o/internet--web/prejudice/user-128.png"
+            default:"https://icons.veryicon.com/png/o/internet--web/prejudice/user-128.png",
+             validate(value){
+                if(!validator.isUrl(value)){
+                    throw new Error("Invalid photo  url"+ value);
+                }
+            }
         },
         about :{
             type : String,
