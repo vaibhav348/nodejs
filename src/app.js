@@ -1,146 +1,151 @@
 const express = require('express');
 const { adminAuth } = require('./middleware/adminAuth');
 const connectDb = require("./config/database")
+const bcrypt = require("bcrypt")
 const User = require("./models/user.js")
+const { validateSingUpData } = require("./utils/validation.js")
 const app = express();
 
 app.use(express.json());
-app.post("/singup", async(req, res)=>{
-    const data  = req.body;
-    console.log(data);
-    
-    const user = new User({
-        firstName : data.firstName,
-        lastName : data.lastName,
-        emailId : data.emailId,
-        password : data.password
-    })
+app.post("/singup", async (req, res) => {
+
+
     try {
+        validateSingUpData(req);
+        const { firstName, lastName, emailId, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: hashedPassword
+        })
+
         await user.save()
         res.status(200).send("user created successfully")
-        
+
     } catch (error) {
-        res.status(400).send("user not created successfully")
-        
+        res.status(400).send("user not created successfully " + error.message)
+
     }
 })
 
-app.get("/user",async(req, res)=>{
+app.get("/user", async (req, res) => {
     const userEmail = req.query.emailId;
     console.log(userEmail);
-    
-try {
-    const users = await User.find({ emailId : userEmail });
-    if(users.length == 0){
-        res.status(401).send("dont recive any match")
-    }else{
-        res.status(200).send(users)
+
+    try {
+        const users = await User.find({ emailId: userEmail });
+        if (users.length == 0) {
+            res.status(401).send("dont recive any match")
+        } else {
+            res.status(200).send(users)
+        }
+
+    } catch (error) {
+        res.status(400);
+
     }
-    
-} catch (error) {
-    res.status(400);
+})
 
-}})
-
-app.get("/oneuser",async(req, res)=>{
+app.get("/oneuser", async (req, res) => {
     const userEmail = req.query.emailId;
     console.log(userEmail);
-    
-try {
-    const user = await User.findOne({ emailId : userEmail });
-     
+
+    try {
+        const user = await User.findOne({ emailId: userEmail });
+
         res.status(200).send(user)
-    
-    
-} catch (error) {
-    res.status(400);
 
-}})
 
-app.get("/feed", async(req,res)=>{
+    } catch (error) {
+        res.status(400);
+
+    }
+})
+
+app.get("/feed", async (req, res) => {
     try {
         const users = await User.find({});
         console.log(users);
         res.status(200).send(users)
 
-        
+
     } catch (error) {
         res.status(200).send(users)
-        
+
     }
 })
 
-app.delete("/user", async(req, res)=>{
+app.delete("/user", async (req, res) => {
     const userId = req.query.Id;
-    
+
     try {
         const user = await User.findByIdAndDelete(userId);
         console.log(userId, user);
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-    res.status(200).send("User deleted successfully");
-    
-} catch (error) {
-    res.status(401).send("error while deleting")
-}})
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+        res.status(200).send("User deleted successfully");
 
-app.patch("/user/:userId", async(req, res)=>{
+    } catch (error) {
+        res.status(401).send("error while deleting")
+    }
+})
+
+app.patch("/user/:userId", async (req, res) => {
     const userId = req.params?.userId;
     const data = req.body;
-    
+
 
     try {
         const ALLOWED_UPDATES = ["userId", "photoUrl", "about", "gender", "age", "skills"];
 
-    const isUpdateAllowed = Object.keys(data).every((k)=>
-    ALLOWED_UPDATES.includes(k)
-)
-    if(!isUpdateAllowed){
-       throw new Error("update not allowed")
-    }
-    if(data?.skills.length > 10){
-        throw new Error("skills can not more then 10")
-    } 
-    const user = await User.findByIdAndUpdate({_id:  userId}, data,{
-            returnDocument : "before",
-            runValidators : true
-            
+        const isUpdateAllowed = Object.keys(data).every((k) =>
+            ALLOWED_UPDATES.includes(k)
+        )
+        if (!isUpdateAllowed) {
+            throw new Error("update not allowed")
+        }
+        if (data?.skills.length > 10) {
+            throw new Error("skills can not more then 10")
+        }
+        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+            returnDocument: "before",
+            runValidators: true
+
         })
         console.log(user);
         res.send("update data successfuly")
-        
+
     } catch (error) {
-        res.status(400).send("problem while update"+ error.message)
+        res.status(400).send("problem while update" + error.message)
     }
 })
 
-app.put("/user", async(req, res)=>{
+app.put("/user", async (req, res) => {
     const userId = req.body.userId;
     const data = req.body;
 
     try {
-        const user = await User.findByIdAndUpdate({_id:  userId}, data,{
-            returnDocument : "before"
+        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+            returnDocument: "before"
 
         })
         console.log(user);
         res.send("update data successfuly")
-        
+
     } catch (error) {
         res.status(400).send("problem while update")
     }
 })
 
-connectDb().then(
-    () => {
-        console.log("database connection stable");
-        app.listen(3000);
-        console.log('Server is running on port 3000');
-
-    })
-    .catch(() => {
-        console.log("database connection disable");
-
-    })
+connectDb().then(() => {
+    console.log("database connection stable");
+    app.listen(3000);
+    console.log('Server is running on port 3000');
+    }) .catch(() => {console.log("database connection disable");
+    }
+    )
 

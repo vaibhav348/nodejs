@@ -4,7 +4,9 @@ const validator = require("validator")
 const userSchema = mongoose.Schema({
        firstName: {
             type: String,
-            required : true
+            required : true,
+            minlength: 4,
+            maxlength : 30
         },
         lastName: {
             type: String
@@ -43,7 +45,7 @@ const userSchema = mongoose.Schema({
             type : String,
             default:"https://icons.veryicon.com/png/o/internet--web/prejudice/user-128.png",
              validate(value){
-                if(!validator.isUrl(value)){
+                if(!validator.isURL(value)){
                     throw new Error("Invalid photo  url"+ value);
                 }
             }
