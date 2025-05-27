@@ -1,5 +1,5 @@
 const express = require('express');
-const { adminAuth } = require('./middleware/adminAuth');
+const { userAuth } = require('./middleware/auth.js');
 const connectDb = require("./config/database")
 const bcrypt = require("bcrypt")
 const User = require("./models/user.js")
@@ -42,10 +42,12 @@ app.post("/login", async (req, res) => {
         if (!user) {
             throw new Error("User is not present in DB")
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validatePassword(password);
         if (isPasswordValid) {
-            const token = await jwt.sign({_id : user._id}, "hhshshhshshsh")
-            res.cookie("token",token)
+            const token =  await user.getJWT();
+            res.cookie("token",token,{
+                expires : new Date(Date.now() + 8 * 3600000)
+            })
             res.status(200).send("Login Successfull!!!");
         } else {
             res.status(400).send("password not Match!!!")
@@ -55,16 +57,10 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.get("/profile", async(req, res)=>{
+app.get("/profile",userAuth, async(req, res)=>{
     try {
-        const cookies = req.cookies;
-        const {token} = cookies;
-        if(!token){
-            throw new Error("Token not fount")
-        }
-        //validate my token
-        const decodedMessage = await jwt.verify(token, "hhshshhshshsh");
-        const user = await User.findById(decodedMessage._id)
+       
+        const user = req.query;
         if(!user){
             throw new Error("user not found")
         }
@@ -72,12 +68,19 @@ app.get("/profile", async(req, res)=>{
     
         res.send(user)
     } catch (error) {
-        res.status(400).send("error while fectcing profile "+res.message)
+        res.status(400).send("error while fectcing profile "+error.message)
     }
     
     
 })
 
+app.post("/sendConnectionRequest",userAuth, (req,res)=>{
+
+    console.log("Sending a connection reqest");
+
+    res.send("send connection reqset successfully!!!");
+    
+})
 app.get("/user", async (req, res) => {
     const userEmail = req.query.emailId;
     console.log(userEmail);
