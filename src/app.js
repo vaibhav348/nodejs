@@ -21,115 +21,115 @@ app.use("/",authRouter)
 app.use("/",profileRouter)
 app.use("/",requestRouter)
 
-app.get("/user", async (req, res) => {
-    const userEmail = req.query.emailId;
-    console.log(userEmail);
+// app.get("/user", async (req, res) => {
+//     const userEmail = req.query.emailId;
+//     console.log(userEmail);
 
-    try {
-        const users = await User.find({ emailId: userEmail });
-        if (users.length == 0) {
-            res.status(401).send("dont recive any match")
-        } else {
-            res.status(200).send(users)
-        }
+//     try {
+//         const users = await User.find({ emailId: userEmail });
+//         if (users.length == 0) {
+//             res.status(401).send("dont recive any match")
+//         } else {
+//             res.status(200).send(users)
+//         }
 
-    } catch (error) {
-        res.status(400);
+//     } catch (error) {
+//         res.status(400);
 
-    }
-})
+//     }
+// })
 
-app.get("/oneuser", async (req, res) => {
-    const userEmail = req.query.emailId;
-    console.log(userEmail);
+// app.get("/oneuser", async (req, res) => {
+//     const userEmail = req.query.emailId;
+//     console.log(userEmail);
 
-    try {
-        const user = await User.findOne({ emailId: userEmail });
+//     try {
+//         const user = await User.findOne({ emailId: userEmail });
 
-        res.status(200).send(user)
-
-
-    } catch (error) {
-        res.status(400);
-
-    }
-})
-
-app.get("/feed", async (req, res) => {
-    try {
-        const users = await User.find({});
-        console.log(users);
-        res.status(200).send(users)
+//         res.status(200).send(user)
 
 
-    } catch (error) {
-        res.status(200).send(users)
+//     } catch (error) {
+//         res.status(400);
 
-    }
-})
+//     }
+// })
 
-app.delete("/user", async (req, res) => {
-    const userId = req.query.Id;
-
-    try {
-        const user = await User.findByIdAndDelete(userId);
-        console.log(userId, user);
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
-        res.status(200).send("User deleted successfully");
-
-    } catch (error) {
-        res.status(401).send("error while deleting")
-    }
-})
-
-app.patch("/user/:userId", async (req, res) => {
-    const userId = req.params?.userId;
-    const data = req.body;
+// app.get("/feed", async (req, res) => {
+//     try {
+//         const users = await User.find({});
+//         console.log(users);
+//         res.status(200).send(users)
 
 
-    try {
-        const ALLOWED_UPDATES = ["userId", "photoUrl", "about", "gender", "age", "skills"];
+//     } catch (error) {
+//         res.status(200).send(users)
 
-        const isUpdateAllowed = Object.keys(data).every((k) =>
-            ALLOWED_UPDATES.includes(k)
-        )
-        if (!isUpdateAllowed) {
-            throw new Error("update not allowed")
-        }
-        if (data?.skills.length > 10) {
-            throw new Error("skills can not more then 10")
-        }
-        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-            returnDocument: "before",
-            runValidators: true
+//     }
+// })
 
-        })
-        console.log(user);
-        res.send("update data successfuly")
+// app.delete("/user", async (req, res) => {
+//     const userId = req.query.Id;
 
-    } catch (error) {
-        res.status(400).send("problem while update" + error.message)
-    }
-})
+//     try {
+//         const user = await User.findByIdAndDelete(userId);
+//         console.log(userId, user);
+//         if (!user) {
+//             return res.status(404).send("User not found");
+//         }
+//         res.status(200).send("User deleted successfully");
 
-app.put("/user", async (req, res) => {
-    const userId = req.body.userId;
-    const data = req.body;
+//     } catch (error) {
+//         res.status(401).send("error while deleting")
+//     }
+// })
 
-    try {
-        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-            returnDocument: "before"
+// app.patch("/user/:userId", async (req, res) => {
+//     const userId = req.params?.userId;
+//     const data = req.body;
 
-        })
-        console.log(user);
-        res.send("update data successfuly")
 
-    } catch (error) {
-        res.status(400).send("problem while update")
-    }
-})
+//     try {
+//         const ALLOWED_UPDATES = ["userId", "photoUrl", "about", "gender", "age", "skills"];
+
+//         const isUpdateAllowed = Object.keys(data).every((k) =>
+//             ALLOWED_UPDATES.includes(k)
+//         )
+//         if (!isUpdateAllowed) {
+//             throw new Error("update not allowed")
+//         }
+//         if (data?.skills.length > 10) {
+//             throw new Error("skills can not more then 10")
+//         }
+//         const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+//             returnDocument: "before",
+//             runValidators: true
+
+//         })
+//         console.log(user);
+//         res.send("update data successfuly")
+
+//     } catch (error) {
+//         res.status(400).send("problem while update" + error.message)
+//     }
+// })
+
+// app.put("/user", async (req, res) => {
+//     const userId = req.body.userId;
+//     const data = req.body;
+
+//     try {
+//         const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+//             returnDocument: "before"
+
+//         })
+//         console.log(user);
+//         res.send("update data successfuly")
+
+//     } catch (error) {
+//         res.status(400).send("problem while update")
+//     }
+// })
 
 connectDb().then(() => {
     console.log("database connection stable");
