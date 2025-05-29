@@ -25,11 +25,7 @@ userRouter.get("/user/requests", userAuth, async(req,res)=>{
 userRouter.get("/user/connections", userAuth, async(req,res)=>{
 const SAFE_USER_DATA = "firstName lastName gender photoUrl age about skills"
     try {
-        const loggedInUser = req.user;
-           
-        
-        
-        
+        const loggedInUser = req.user;        
         const connection = await ConnectionRequest.find({ 
             $or:[
                 {toUserId : loggedInUser._id , status: "accepted" },
@@ -37,7 +33,13 @@ const SAFE_USER_DATA = "firstName lastName gender photoUrl age about skills"
 
             ]
             }).populate("fromUserId",   SAFE_USER_DATA)
-       const data = connection.map((row)=> row.fromUserId)
+            .populate("toUserId",   SAFE_USER_DATA)
+       const data = connection.map((row)=>{
+        if(row.fromUserId._id.toString() == loggedInUser._id.toString()){
+            return row.toUserId;
+        }
+        return row.fromUserId;
+       })
         
         return res.status(200).json({data})
         
