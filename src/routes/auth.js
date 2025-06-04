@@ -33,9 +33,12 @@ authRouter.post("/login", async (req, res) => {
         const { emailId, password } = req.body;
         const user = await User.findOne({ emailId: emailId })
         if (!user) {
-            throw new Error("User is not present in DB")
+            throw new Error("User is not present in DB!!!")
         }
         const isPasswordValid = await user.validatePassword(password);
+        if(!isPasswordValid){
+            throw new Error("Password in Wronge!!!")
+        }
         if (isPasswordValid) {
             const token =  await user.getJWT();
             res.cookie("token",token,{
@@ -46,7 +49,7 @@ authRouter.post("/login", async (req, res) => {
             res.status(400).send("Invalid Vredentials!!!")
         }
     } catch (error) {
-        res.status(400).send("problem while login " + error.message)
+        res.status(400).json({message :  error.message})
     }
 })
 

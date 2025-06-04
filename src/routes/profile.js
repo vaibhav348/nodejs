@@ -2,22 +2,27 @@ const express = require("express");
 const { userAuth } = require("../middleware/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const profileRouter = express.Router();
-profileRouter.get("/profile/view",userAuth, async(req, res)=>{
-    try {
+// profileRouter.get("/profile/view",userAuth, async(req, res)=>{
+//     try {
        
-        const user = req.query;
-        if(!user){
-            throw new Error("user not found")
-        }
-        console.log(user);
+//         const user = req.query;
+//         if(!user){
+//             throw new Error("user not found")
+//         }
+//         console.log(user);
     
-        res.send(user)
-    } catch (error) {
-        res.status(400).send("error while fectcing profile "+error.message)
-    }
+//         res.send(user)
+//     } catch (error) {
+//         res.status(400).send("error while fectcing profile "+error.message)
+//     }
     
     
-})
+// })
+
+profileRouter.get("/profile/view", userAuth, async (req, res) => {
+  const user = req.user;
+  res.send(user);
+});
 
 profileRouter.patch("/profile/edit", userAuth, async(req,res)=>{
 try {
