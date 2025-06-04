@@ -41,9 +41,9 @@ authRouter.post("/login", async (req, res) => {
             res.cookie("token",token,{
                 expires : new Date(Date.now() + 8 * 3600000)
             })
-            res.status(200).send("Login Successfull!!!");
+             res.status(200).json({ user });
         } else {
-            res.status(400).send("password not Match!!!")
+            res.status(400).send("Invalid Vredentials!!!")
         }
     } catch (error) {
         res.status(400).send("problem while login " + error.message)
