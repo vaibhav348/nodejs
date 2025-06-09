@@ -8,14 +8,16 @@ const authRouter = express.Router();
 authRouter.post("/singup", async (req, res) => {
     try {
         validateSingUpData(req);
-        const { firstName, lastName, emailId, password } = req.body;
+        const { firstName, lastName, emailId, password , skills, gender} = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
             firstName,
             lastName,
             emailId,
-            password: hashedPassword
+            password: hashedPassword,
+            skills,
+            gender
         })
 
         await user.save()

@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 const userRouter =express.Router();
 
-const SAFE_USER_DATA = "firstName lastName gender photoUrl age about skills"
+const SAFE_USER_DATA = "firstName lastName gender photoUrl age about skills gender"
 
 //all panding status request
 userRouter.get("/user/requests", userAuth, async(req,res)=>{
@@ -53,8 +53,8 @@ userRouter.get("/user/connections", userAuth, async(req,res)=>{
 userRouter.get("/feed", userAuth, async(req,res)=>{
    try {
      const loggedInUser = req.user;
-     const page = parseInt(req.query.page) || 1;
-     const limit = parseInt(req.query.limit) || 10;
+     let page = parseInt(req.query.page) || 1;
+     let limit = parseInt(req.query.limit) || 10;
      limit = limit > 50 ? 50 : limit;
      const skip = (page-1)*limit;
 
