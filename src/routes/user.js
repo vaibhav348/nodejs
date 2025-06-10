@@ -7,13 +7,13 @@ const userRouter =express.Router();
 const SAFE_USER_DATA = "firstName lastName gender photoUrl age about skills gender"
 
 //all panding status request
-userRouter.get("/user/requests", userAuth, async(req,res)=>{
+userRouter.get("/user/requests/recieved", userAuth, async(req,res)=>{
     try {
         const loggedInUser = req.user;
         const connectionRequest = await ConnectionRequest.find({
             toUserId  : loggedInUser._id,
             status : "interested"
-        }).populate("fromUserId", "firstName lastName photoUrl age gender skills")
+        }).populate("fromUserId", "firstName lastName photoUrl age gender about skills")
         // .populate("fromUserId", ["firstName","lastName"])
           res.status(200).json({
             message:"connection request are",

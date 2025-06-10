@@ -15,6 +15,8 @@ const validateSingUpData = (req)=>{
 
 const validateEditProfileData = (req)=>{
     const allowedEditFields = [
+        "firstName",
+        "lastName",
         "age",
         "gender",
         "photoUrl",
