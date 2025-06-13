@@ -20,6 +20,9 @@ authRouter.post("/singup", async (req, res) => {
         if(await User.findOne({ emailId })){
              throw new Error("Email is already present");
         }
+        // if(skills.length > 10){
+        //      throw new Error("Max 10 skills allowed");
+        // }
       
 
         
@@ -47,6 +50,12 @@ authRouter.post("/singup", async (req, res) => {
         
 
             } catch (error) {
+                 if (error.name === "ValidationError") {
+    const skillError = error.errors.skills?.message;
+    return res.status(400).send({
+      data: skillError || "Validation failed",
+    });
+  }
         res.status(400).send( error.message +"!!!")
 
     }

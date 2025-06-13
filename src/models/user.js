@@ -56,7 +56,11 @@ const userSchema = mongoose.Schema({
             default : "this is defualt about"
         },
         skills : {
-            type : [String]
+            type : [String],
+  validate: {
+    validator: arr => arr.length <= 10,
+    message: "Max 10 skills allowed"
+  }
         }
 },{
     timestamps : true
